@@ -17,11 +17,12 @@ module.exports.run = async (client, message, args) => {
         );
 
         const embed = new MessageEmbed()
-            .setColor(client.settings.color)
+            .setColor(client.settings.panel_color)
             .setTitle("יצירת טיקט")
             .setDescription("ליצירת טיקט אנונימי, לחץ על כפתור היצירה")
         
         channel.send({embeds: [embed], components: [row]});
+        message.reply("הפאנל נשלח בהצלחה.");
     }
 }
 
