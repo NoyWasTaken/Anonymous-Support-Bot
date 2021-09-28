@@ -55,5 +55,18 @@ module.exports = async (client, interaction) => {
         client.tickets[userId].manager = interaction.member.id;
         client.tickets[userId].channel.send(`הצ'אט נלקח ע"י חבר הצוות ${interaction.member.toString()}`)
         // update channel permissions
+    } else if (interaction.customId.includes("close-ticket-")) {
+        var userId = interaction.customId.replace("close-ticket-", "");
+        var user = client.users.cache.find(u => u.id == userId);
+
+        if(user)
+        {
+            user.send("הצ'אט נסגר ע\"י הצוות.");
+            interaction.reply(`הצ'אט נסגר ע "י חבר הצוות ${interaction.member.toString()}`);
+        }
+        else
+            interaction.reply("לא ניתן לאתר את יוצר הטיקט.");
+
+        delete client.tickets[userId];
     }
 }

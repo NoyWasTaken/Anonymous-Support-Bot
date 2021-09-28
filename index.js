@@ -50,9 +50,7 @@ client.on('messageCreate', async message => {
 	if(message.guildId == null)
 	{
 		if(client.tickets[message.author.id])
-		{
 			client.tickets[message.author.id].channel.send(`הודעה מהמשתמש: **${message.content}**`);
-		}
 	} else {
 		if(!message.channel || !message.member || message.author.bot)
 			return;
