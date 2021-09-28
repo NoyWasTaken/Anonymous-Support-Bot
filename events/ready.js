@@ -9,4 +9,9 @@ module.exports = async (client) => {
 	});
     
     console.log(`[+] Generated invite url: ${link}`);
+
+    const guilds = client.guilds.cache;
+    guilds.forEach(guild => {
+        client.tickets[guild.id] = {}
+    });
 }

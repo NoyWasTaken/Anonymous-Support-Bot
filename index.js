@@ -6,8 +6,11 @@ const client = new Discord.Client({
     partials: ['MESSAGE', 'CHANNEL', 'REACTION'], 
     intents: Object.keys(Discord.Intents.FLAGS)
 });
+
+
 client.commands = new Discord.Collection();
 client.settings = settings;
+client.tickets = {}
 
 fs.readdir('./commands/', (err, files) => {
 	if(err) console.error(err);
