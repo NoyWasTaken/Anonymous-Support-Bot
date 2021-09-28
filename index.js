@@ -12,7 +12,7 @@ fs.readdir('./commands/', (err, files) => {
 	if(jsFiles.length <= 0)
 		return console.log("[+] No commands found.");
 	else
-		console.log("[+] Found " + jsFiles.length + " commands:");
+		console.log(`[+] Found ${jsFiles.length} commands:`);
 	
 	jsFiles.forEach((f, i) => {
 		var cmds = require(`./commands/${f}`);
@@ -31,7 +31,7 @@ fs.readdir('./events/', (err, files) => {
 	if(jsFiles.length <= 0)
 		return console.log("[+] No events found.");
 	else
-		console.log("[+] Found " + jsFiles.length + " events:");
+		console.log(`[+] Found ${jsFiles.length} events:`);
 	
 	jsFiles.forEach((f, i) => {
 		var event = require(`./events/${f}`);
