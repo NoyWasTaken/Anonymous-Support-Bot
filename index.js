@@ -1,9 +1,13 @@
-const config = require("./includes/config.json");
+const settings = require("./includes/config.json");
 const Discord = require('discord.js');
+const fs = require("fs");
 
-const client = new Discord.Client(/*{ ws: { intents: ['GUILD_PRESENCES', 'GUILD_MEMBERS'] }}*/);
+const client = new Discord.Client({ 
+    partials: ['MESSAGE', 'CHANNEL', 'REACTION'], 
+    intents: Object.keys(Discord.Intents.FLAGS)
+});
 client.commands = new Discord.Collection();
-client.config = config;
+client.settings = settings;
 
 fs.readdir('./commands/', (err, files) => {
 	if(err) console.error(err);
@@ -41,7 +45,7 @@ fs.readdir('./events/', (err, files) => {
 	});
 });
 
-client.on("message", async message => {
+client.on('messageCreate', async message => {
 	if(!message.member)
 		return;
 	
@@ -51,7 +55,7 @@ client.on("message", async message => {
 	if(!IsCommand(message) || message.author.bot)
 		return;
 	
-	var cont = message.content.slice(config.prefix.length).split(" "); // removes prefix then giving an array, cont[0] = command. the rest is the args
+	var cont = message.content.slice(client.settings.prefix.length).split(" "); // removes prefix then giving an array, cont[0] = command. the rest is the args
 	var args = cont.slice(1);
 	
 	var cmd = client.commands.get(cont[0]);
@@ -59,9 +63,9 @@ client.on("message", async message => {
 });
 
 function IsCommand(message) {
-	return message.content.toLowerCase().startsWith(config.prefix);
+	return message.content.toLowerCase().startsWith(client.settings.prefix);
 }
 
-console.log(`[+] Logining in using token: ${config.token}`);
-console.log(`[+] Using command prefix: ${config.prefix}`);
-client.login(config.token);
+console.log(`[+] Logining in using token: ${client.settings.token}`);
+console.log(`[+] Using command prefix: ${client.settings.prefix}`);
+client.login(client.settings.token);
