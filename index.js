@@ -27,8 +27,6 @@ fs.readdir('./commands/', (err, files) => {
 		
 		client.commands.set(cmds.config.command, cmds);
 	});
-	
-	console.log("");
 });
 
 fs.readdir('./events/', (err, files) => {
@@ -49,20 +47,39 @@ fs.readdir('./events/', (err, files) => {
 });
 
 client.on('messageCreate', async message => {
-	if(!message.member)
-		return;
-	
-	if(!message.channel)
-		return;
+	if(message.guildId == null)
+	{
+		if(client.tickets[message.author.id])
+		{
+			client.tickets[message.author.id].channel.send(`הודעה מהמשתמש: **${message.content}**`);
+		}
+	} else {
+		if(!message.channel || !message.member || message.author.bot)
+			return;
+		
+		if(!IsCommand(message))
+		{
+			for(const [key, value] of Object.entries(client.tickets))
+			{
+				if(value.channel.id == message.channel.id)
+				{
+					var user = client.users.cache.find(u => u.id == key);
+					if(user)
+						user.send(`הודעה מעת צוות התומכים: **${message.content}**`);
+					else
+						message.reply("שגיאה בעת איתור המשתמש.");
 
-	if(!IsCommand(message) || message.author.bot)
-		return;
-	
-	var cont = message.content.slice(client.settings.prefix.length).split(" "); // removes prefix then giving an array, cont[0] = command. the rest is the args
-	var args = cont.slice(1);
-	
-	var cmd = client.commands.get(cont[0]);
-	if(cmd) cmd.run(client, message, args);
+					break;
+				}
+			}
+		} else {
+			var cont = message.content.slice(client.settings.prefix.length).split(" "); // removes prefix then giving an array, cont[0] = command. the rest is the args
+			var args = cont.slice(1);
+			
+			var cmd = client.commands.get(cont[0]);
+			if(cmd) cmd.run(client, message, args);
+		}
+	}
 });
 
 function IsCommand(message) {
