@@ -57,18 +57,14 @@ client.on('messageCreate', async message => {
 		
 		if(!IsCommand(message))
 		{
-			for(const [key, value] of Object.entries(client.tickets))
+			var ticket = client.getTicketOfChannel(message.channel.id)
+			if(ticket)
 			{
-				if(value.channel.id == message.channel.id)
-				{
-					var user = client.users.cache.find(u => u.id == key);
-					if(user)
-						user.send(`הודעה מעת צוות התומכים: **${message.content}**`);
-					else
-						message.reply("שגיאה בעת איתור המשתמש.");
-
-					break;
-				}
+				var user = client.users.cache.find(u => u.id == ticket);
+				if(user)
+					user.send(`הודעה מעת צוות התומכים: **${message.content}**`);
+				else
+					message.reply("שגיאה בעת איתור המשתמש.");
 			}
 		} else {
 			var cont = message.content.slice(client.settings.prefix.length).split(" "); // removes prefix then giving an array, cont[0] = command. the rest is the args
@@ -79,6 +75,36 @@ client.on('messageCreate', async message => {
 		}
 	}
 });
+
+client.getTicketOfId = (id) => {
+	var ticketId = null;
+
+	for(const [key, value] of Object.entries(client.tickets))
+	{
+		if(value.id == id)
+		{
+			ticketId = key;
+			break;
+		}
+	}
+
+	return ticketId;
+}
+
+client.getTicketOfChannel = (id) => {
+	var ticketId = null;
+
+	for(const [key, value] of Object.entries(client.tickets))
+	{
+		if(value.channel.id == id)
+		{
+			ticketId = key;
+			break;
+		}
+	}
+
+	return ticketId;
+}
 
 client.isSupporter = (guild, member) => {
 	return hasOneOfRoles(guild, member, client.settings.supporters_ranks);
