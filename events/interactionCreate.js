@@ -65,15 +65,19 @@ module.exports = async (client, interaction) => {
 
                 const embed = new MessageEmbed()
                     .setColor(client.settings.panel_color)
-                    .setTitle("יצירת טיקט")
-                    .setDescription("ליצירת טיקט אנונימי, לחץ על כפתור היצירה")
+                    .setTitle(`צ'אט ${id}`)
+                    .setDescription("משתמש פתח צ'אט, נא לתת סיוע בהתאם!")
                 
                 channel.send({embeds: [embed], components: [row]});
+                channel.send(client.rolesToString(interaction.guild, client.settings.supporters_ranks.concat(client.settings.inspectors_ranks)))
             })
 
             interaction.member.send("היי, צוות התומכים קיבל את הודעתכם בהצלחה!\nכל הודעה שתשלח כאן תגיע באופן אנונימי לצוות התומכים.");
         }
     } else if (interaction.customId.includes("take-ticket-")) {
+        if(!client.isSupporter(interaction.guild, interaction.member) && !client.isInspector(interaction.guild, interaction.member) && !client.isManager(interaction.guild, interaction.member))
+            return interaction.member.send("אין לך גישה לקחת את הצ'אט.");
+
         const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
@@ -105,6 +109,9 @@ module.exports = async (client, interaction) => {
             SEND_MESSAGES: true
         })
     } else if (interaction.customId.includes("close-ticket-")) {
+        if(!client.isSupporter(interaction.guild, interaction.member) && !client.isInspector(interaction.guild, interaction.member) && !client.isManager(interaction.guild, interaction.member))
+            return interaction.member.send("אין לך גישה לסגור את הצ'אט.");
+
         const row = new MessageActionRow()
         .addComponents(
             new MessageButton()

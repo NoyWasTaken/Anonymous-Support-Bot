@@ -80,6 +80,42 @@ client.on('messageCreate', async message => {
 	}
 });
 
+client.isSupporter = (guild, member) => {
+	return hasOneOfRoles(guild, member, client.settings.supporters_ranks);
+}
+
+client.isInspector = (guild, member) => {
+	return hasOneOfRoles(guild, member, client.settings.inspectors_ranks);
+}
+
+client.isManager = (guild, member) => {
+	return hasOneOfRoles(guild, member, client.settings.managers_ranks);
+}
+
+function hasOneOfRoles(guild, member, roles)
+{
+	var found = false;
+	roles.forEach(rank => {
+		var role = guild.roles.cache.find(r => r.name == rank)
+		if(role !== undefined && member.roles.cache.find(r => r.id == role.id) !== undefined)
+			found = true;
+	});
+
+	return found;
+}
+
+client.rolesToString = (guild, roles) => {
+	var mentions = "";
+
+	roles.forEach(rank => {
+		var role = guild.roles.cache.find(r => r.name == rank)
+		if(role !== undefined)
+			mentions = mentions + role.toString();
+	})
+
+	return mentions;
+}
+
 function IsCommand(message) {
 	return message.content.toLowerCase().startsWith(client.settings.prefix);
 }
