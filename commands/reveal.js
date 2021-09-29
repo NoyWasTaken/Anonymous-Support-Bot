@@ -16,7 +16,7 @@ module.exports.run = async(client, message) => {
         if(user)
             return message.reply(`יוצר הצ'אט: ${user.toString()} - ${user.username}#${user.discriminator}`);
     } else {
-        return message.reply("לא נמצא צ'אט תחת התיוג הזה.");
+        return message.reply("לא נמצא צ'אט תחת החדר שתוייג.");
     }
 }
 
