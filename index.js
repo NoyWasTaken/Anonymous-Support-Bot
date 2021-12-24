@@ -50,7 +50,7 @@ client.on('messageCreate', async message => {
 	if(message.guildId == null)
 	{
 		if(client.tickets[message.author.id])
-			client.tickets[message.author.id].channel.send(`הודעה מהמשתמש: **${message.content}**`);
+			client.tickets[message.author.id].channel.send(message.content);
 	} else {
 		if(!message.channel || !message.member || message.author.bot)
 			return;
@@ -62,7 +62,7 @@ client.on('messageCreate', async message => {
 			{
 				var user = client.users.cache.find(u => u.id == ticket);
 				if(user)
-					user.send(`הודעה מעת צוות התומכים: **${message.content}**`);
+					user.send(message.content);
 				else
 					message.reply("שגיאה בעת איתור המשתמש.");
 			}

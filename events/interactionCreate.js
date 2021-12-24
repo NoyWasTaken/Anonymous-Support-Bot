@@ -53,14 +53,14 @@ module.exports = async (client, interaction) => {
                 const row = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
-                        .setCustomId(`take-ticket-${interaction.member.id}`)
-                        .setLabel("שיוך צ'אט אליי")
-                        .setStyle('PRIMARY'),
-
-                        new MessageButton()
                         .setCustomId(`close-ticket-${interaction.member.id}`)
                         .setLabel("סגירת צ'אט")
                         .setStyle('DANGER'),
+
+                    new MessageButton()
+                        .setCustomId(`take-ticket-${interaction.member.id}`)
+                        .setLabel("שיוך צ'אט אליי")
+                        .setStyle('PRIMARY'),
                 );
 
                 const embed = new MessageEmbed()
@@ -69,10 +69,17 @@ module.exports = async (client, interaction) => {
                     .setDescription("משתמש פתח צ'אט, נא לתת סיוע בהתאם!")
                 
                 channel.send({embeds: [embed], components: [row]});
-                channel.send(client.rolesToString(interaction.guild, client.settings.supporters_ranks.concat(client.settings.inspectors_ranks)))
+                channel.send(client.rolesToString(interaction.guild, client.settings.supporters_ranks.concat(client.settings.inspectors_ranks))).then(msg => {
+                    msg.delete();
+                })
             })
+            
+            const embed = new MessageEmbed()
+                    .setColor(client.settings.panel_color)
+                    .setTitle(`צ'אט ${id}`)
+                    .setDescription("היי, צוות התומכים קיבל את הודעתכם בהצלחה!\nכל הודעה שתשלח כאן תגיע באופן אנונימי לצוות התומכים.")
 
-            interaction.member.send("היי, צוות התומכים קיבל את הודעתכם בהצלחה!\nכל הודעה שתשלח כאן תגיע באופן אנונימי לצוות התומכים.");
+            interaction.member.send({embeds: [embed]});
         }
     } else if (interaction.customId.includes("take-ticket-")) {
         if(!client.isSupporter(interaction.guild, interaction.member) && !client.isInspector(interaction.guild, interaction.member) && !client.isManager(interaction.guild, interaction.member))
@@ -138,14 +145,21 @@ module.exports = async (client, interaction) => {
 
         if(user)
         {
-            user.send("הצ'אט נסגר ע\"י הצוות.");
-            client.tickets[userId].channel.send(`הצ'אט נסגר ע "י חבר הצוות ${interaction.member.toString()}`);
+            const embed = new MessageEmbed()
+                .setColor(client.settings.panel_color)
+                .setTitle(`הצ'אט נסגר`)
+                .setDescription("מזמינים אתכם לפנות אלינו שוב בכל עת.\nהמשך יום טוב!")
+            
+            user.send({embeds: [embed]});
+            if(client.tickets[userId] && client.tickets[userId].channel)
+            {
+                // TODO: logs system
+            }
         }
         else
             client.tickets[userId].channel.send("לא ניתן לאתר את יוצר הטיקט.");
 
         delete client.tickets[userId];
-
         // TODO: save log of the ticket
     }
 }
