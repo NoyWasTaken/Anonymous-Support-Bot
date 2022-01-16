@@ -19,13 +19,16 @@ module.exports.run = async (client, message, args) => {
         let tosMention = message.mentions.channels.firstKey(2)[1];
         let tosChannel = message.guild.channels.cache.find(c => c.id == tosMention);
 
-        const embed = new MessageEmbed()
-            .setColor(client.settings.panel_color)
-            .setTitle("אתם לא לבד - דברו איתנו!")
-            .setDescription(`על מנת לפתוח צ'אט ולשוחח עם אחד התומכים באופן אנונימי יש ללחוץ על הכפתור מטה, והצ'אט יפתח באופן אוטומטי.\nלאחר פתיחתו תקבלו הודעה פרטית מהבוט האנונימי שלנו כי הצ'אט אכן נפתח.\nבאמצעות ההודעה הפרטית אתם מוזמנים לכתוב לנו ולפרוק בחופשיות את כל מה שעל ליבכם, ונשמח להעניק לכם אוזן קשבת ומענה חם ואוהב בחזרה.\nשימו לב שיש לקרוא את תנאי השימוש בקפידה לפני שימושכם בשרת ובצ'אטים (${tosChannel.toString()}).`)
-        
-        channel.send({embeds: [embed], components: [row]});
-        message.reply("הפאנל נשלח בהצלחה.");
+        if(tosChannel !== undefined)
+        {
+            const embed = new MessageEmbed()
+                .setColor(client.settings.panel_color)
+                .setTitle("אתם לא לבד - דברו איתנו!")
+                .setDescription(`על מנת לפתוח צ'אט ולשוחח עם אחד התומכים באופן אנונימי יש ללחוץ על הכפתור מטה, והצ'אט יפתח באופן אוטומטי.\nלאחר פתיחתו תקבלו הודעה פרטית מהבוט האנונימי שלנו כי הצ'אט אכן נפתח.\nבאמצעות ההודעה הפרטית אתם מוזמנים לכתוב לנו ולפרוק בחופשיות את כל מה שעל ליבכם, ונשמח להעניק לכם אוזן קשבת ומענה חם ואוהב בחזרה.\nשימו לב שיש לקרוא את תנאי השימוש בקפידה לפני שימושכם בשרת ובצ'אטים (${tosChannel.toString()}).`)
+            
+            channel.send({embeds: [embed], components: [row]});
+            message.reply("הפאנל נשלח בהצלחה.");
+        }
     }
 }
 

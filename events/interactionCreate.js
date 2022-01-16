@@ -1,5 +1,5 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require("discord.js");
-const wait = require('util').promisify(setTimeout);
+const fs = require("fs");
 
 module.exports = async (client, interaction) => {
     if (!interaction.isButton()) return;
@@ -12,8 +12,17 @@ module.exports = async (client, interaction) => {
         {
             interaction.member.send("כבר יש לך טיקט פתוח, שלח הודעה בצ'אט כאן והיא תעבור באופן אנונימי לצוות התומכים.")
         } else {
-            var keys = Object.keys(client.tickets)
-            var id = keys.length == 0 ? 1 : client.tickets[keys[keys.length - 1]].id + 1
+            if(!client.serversData[interaction.guild.id])
+                client.serversData[interaction.guild.id] = { "tickets_count": 0 }
+
+            /*var keys = Object.keys(client.tickets)
+            var id = keys.length == 0 ? 1 : client.tickets[keys[keys.length - 1]].id + 1*/
+            client.serversData[interaction.guild.id]["tickets_count"]++;
+            var id = client.serversData[interaction.guild.id]["tickets_count"];
+            client.serversData[interaction.guild.id][id] = interaction.member.id;
+
+            fs.writeFile(client.serversDataFile, JSON.stringify(client.serversData, null, 2), function(err) {
+            });
 
             client.tickets[interaction.member.id] = {
                 id: id,
@@ -88,15 +97,15 @@ module.exports = async (client, interaction) => {
         const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
+                .setCustomId(`close-ticket-${interaction.member.id}`)
+                .setLabel("סגירת צ'אט")
+                .setStyle('DANGER'),
+
+            new MessageButton()
                 .setCustomId(`take-ticket-${interaction.member.id}`)
                 .setLabel("שיוך צ'אט אליי")
                 .setStyle('PRIMARY')
                 .setDisabled(true),
-
-                new MessageButton()
-                .setCustomId(`close-ticket-${interaction.member.id}`)
-                .setLabel("סגירת צ'אט")
-                .setStyle('DANGER'),
         );
 
         interaction.update({
@@ -122,15 +131,15 @@ module.exports = async (client, interaction) => {
         const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
-                .setCustomId(`take-ticket-${interaction.member.id}`)
-                .setLabel("שיוך צ'אט אליי")
-                .setStyle('PRIMARY')
-                .setDisabled(true),
-
-                new MessageButton()
                 .setCustomId(`close-ticket-${interaction.member.id}`)
                 .setLabel("סגירת צ'אט")
                 .setStyle('DANGER')
+                .setDisabled(true),
+
+            new MessageButton()
+                .setCustomId(`take-ticket-${interaction.member.id}`)
+                .setLabel("שיוך צ'אט אליי")
+                .setStyle('PRIMARY')
                 .setDisabled(true),
         );
 
@@ -153,7 +162,7 @@ module.exports = async (client, interaction) => {
             user.send({embeds: [embed]});
             if(client.tickets[userId] && client.tickets[userId].channel)
             {
-                // TODO: logs system
+                client.logChannel(interaction.guild, client.tickets[userId].channel, `ticket-${client.tickets[userId].id}.html`, client.tickets[userId]);
             }
         }
         else

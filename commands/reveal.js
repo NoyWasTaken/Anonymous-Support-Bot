@@ -1,22 +1,23 @@
 const { Permissions } = require("discord.js");
 
-module.exports.run = async(client, message) => {
+module.exports.run = async(client, message, args) => {
     if(!message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR))
         return message.reply("אין לך גישה לפקודה הזו.");
-
-    const mention = message.mentions.channels.firstKey();
-    const channel = message.guild.channels.cache.find(c => c.id == mention);
-    if(channel !== undefined)
+    
+    let ticket = client.serversData[message.member.guild.id][parseInt(args[0])]
+    if(ticket)
     {
-        var ticket = client.getTicketOfChannel(channel.id);
-        if(ticket == null)
-            return message.reply("לא נמצא צ'אט תחת החדר שתוייג.");
+        let name = "User Not Found";
+        let user = client.users.cache.find(u => u.id == ticket);
 
-        var user = client.users.cache.find(u => u.id == ticket);
         if(user)
-            return message.reply(`יוצר הצ'אט: ${user.toString()} - ${user.username}#${user.discriminator}`);
-    } else {
-        return message.reply("לא נמצא צ'אט תחת החדר שתוייג.");
+            name = `${user.username}#${user.discriminator}`;
+
+        return message.reply(`||${name} (${ticket})||`);
+    }
+    else
+    {
+        return message.reply("לא נמצא טיקט תחת האיידי הזה.");
     }
 }
 

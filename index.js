@@ -1,5 +1,7 @@
 const settings = require("./includes/config.json");
+const serversData = require('./includes/servers.json');
 const Discord = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const fs = require("fs");
 
 const client = new Discord.Client({ 
@@ -8,8 +10,10 @@ const client = new Discord.Client({
 });
 
 
+client.serversDataFile = "./includes/servers.json";
 client.commands = new Discord.Collection();
 client.settings = settings;
+client.serversData = serversData;
 client.tickets = {}
 
 fs.readdir('./commands/', (err, files) => {
@@ -144,6 +148,79 @@ client.rolesToString = (guild, roles) => {
 
 function IsCommand(message) {
 	return message.content.toLowerCase().startsWith(client.settings.prefix);
+}
+
+client.logChannel = (guild, channel, file, ticket) => {
+	let messageLog = '\
+	<div class="parent-container">\
+		<div class="avatar-container"><img src="{avatar}" class="avatar"></div>\
+		<div class="message-container"><span>{username} {date}</span><span>{message}</span></div>\
+	</div>';
+
+	channel.messages.fetch(undefined, {
+		cache: false,
+		force: true
+	}).then(messages => {
+		fs.copyFile("log-template.html", file, function(err) {
+			if(err) console.log(err);
+		});
+
+		fs.readFile(file, "utf8", function (err, data) {
+			if(err) return console.log(err);
+
+			let result = data.replace("{guild_name}", guild.name);
+			result = result.replace("{guild_avatar}", guild.iconURL());
+			result = result.replace("{channel_name}", channel.name);
+			result = result.replace("{message_count}", messages.size);
+			
+			let sortedMessages = [];
+			messages.forEach(message => {
+				let currentMsg = messageLog;
+				currentMsg = currentMsg.replace("{avatar}", message.author.avatarURL());
+				currentMsg = currentMsg.replace("{username}", `${message.member.user.username}#${message.member.user.discriminator}`);
+				currentMsg = currentMsg.replace("{message}", message.content);
+				currentMsg = currentMsg.replace("{date}", message.createdAt);
+				
+				sortedMessages.push(currentMsg);
+			});
+
+			sortedMessages.reverse().forEach(message => {
+				result = result + message;
+			});
+
+			fs.writeFile(file, result, function(err) {
+				if(err) console.log(err);
+			});
+
+			let logsChannel = guild.channels.cache.find(c => c.id == client.settings.logs_channel);
+			if(logsChannel)
+			{
+				const promise = fs.promises.readFile(file);
+				Promise.resolve(promise).then(function(buffer) {
+					let manager = client.users.cache.find(u => u.id == ticket.manager);
+					let managerName = manager ? `${manager.username}#${manager.discriminator}` : "לא נמצא תומך";
+
+					const embed = new MessageEmbed()
+						.setColor(client.settings.panel_color)
+						.setTitle(`צ'אט ${ticket.id}`)
+						.setDescription(`תומך: ${managerName}`)
+
+					logsChannel.send({embeds: [embed], files: [{
+						attachment: buffer,
+						name: file
+					}]});
+				});
+
+				fs.unlink(file, function(err) {
+					if(err) console.log(err);
+				});
+
+				channel.delete();
+			} else {
+				channel.send("שגיאה בעת יצירת לוג לטיקט: חדר הלוגים לא נמצא");
+			}
+		})
+	})
 }
 
 console.log(`[+] Logining in using token: ${client.settings.token}`);
